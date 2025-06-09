@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
 import { Task } from "@/types/types";
 import {
   Add01Icon,
-  Delete01Icon,
+  Delete02Icon,
   Flag02Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react-native";
@@ -112,7 +112,7 @@ export default function PendingScreen() {
                   { backgroundColor: isDark ? "#2d1b1b" : "#fee2e2" },
                 ]}
               >
-                <HugeiconsIcon icon={Delete01Icon} size={16} color="#ef4444" />
+                <HugeiconsIcon icon={Delete02Icon} size={16} color="#ef4444" />
               </Pressable>
             </View>
           </View>
