@@ -2,7 +2,11 @@ import { ThemedView } from "@/components/ThemedView";
 import { removeTask } from "@/contexts/taskSlice";
 import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
 import { Task } from "@/types/types";
-import { Add01Icon, Delete01Icon } from "@hugeicons/core-free-icons";
+import {
+  Add01Icon,
+  Delete01Icon,
+  Flag02Icon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import { format } from "date-fns";
 import Checkbox from "expo-checkbox";
@@ -116,11 +120,11 @@ export default function PendingScreen() {
           {/* Footer with priority and date */}
           <View style={styles.cardFooter}>
             <View style={styles.priorityBadge}>
-              <View
-                style={[
-                  styles.priorityDot,
-                  { backgroundColor: priorityColors[item.priority] },
-                ]}
+              <HugeiconsIcon
+                icon={Flag02Icon}
+                size={20}
+                color={priorityColors[item.priority]}
+                strokeWidth={1.75}
               />
               <Text
                 style={[
