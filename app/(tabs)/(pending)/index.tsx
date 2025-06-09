@@ -21,8 +21,8 @@ export default function PendingScreen() {
           styles.fab,
           {
             opacity: pressed ? 0.7 : 1,
-            backgroundColor: colorScheme === "dark" ? "#fff" : "#000",
-            shadowColor: colorScheme === "dark" ? "#fff" : "#000",
+            backgroundColor: colorScheme === "dark" ? "#10b981" : "#059669",
+            shadowColor: colorScheme === "dark" ? "#374151" : "#e5e7eb",
           },
         ]}
       >

@@ -62,13 +62,13 @@ export default function RootLayout() {
                 icon={StickyNote01Icon}
                 name="tasks"
                 size={24}
-                color={isDark ? "#fff" : "#1a1a1a"}
+                color={isDark ? colors.activeDark : colors.activeLight}
                 strokeWidth={2}
               />
               <Text
                 style={[
                   styles.headerTitle,
-                  { color: isDark ? "#fff" : "#1a1a1a" },
+                  { color: isDark ? colors.activeDark : colors.activeLight },
                 ]}
               >
                 My Tasks
@@ -87,8 +87,8 @@ export default function RootLayout() {
               <HugeiconsIcon
                 icon={Setting07Icon}
                 name="settings-outline"
-                size={22}
-                color={isDark ? "#fff" : "#1a1a1a"}
+                size={24}
+                color={isDark ? colors.activeLight : colors.activeDark}
                 strokeWidth={1.8}
               />
             </Pressable>
