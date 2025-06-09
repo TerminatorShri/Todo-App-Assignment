@@ -1,15 +1,14 @@
-import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { Ionicons } from "@expo/vector-icons";
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import { Setting07Icon, StickyNote01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react-native";
 import {
   DarkTheme,
   DefaultTheme,
   ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import { Stack, useRouter } from "expo-router";
-import { Pressable, StatusBar, Text, View } from "react-native";
+import { Stack, usePathname, useRouter } from "expo-router";
+import { Pressable, StatusBar, StyleSheet, Text, View } from "react-native";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -17,59 +16,104 @@ export default function RootLayout() {
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
+  const pathname = usePathname();
 
   if (!loaded) return null;
 
+  const colors = {
+    // Active tab colors
+    activeLight: "#059669", // Green-600
+    activeDark: "#10b981", // Green-500
+
+    // Inactive tab colors
+    inactiveLight: "#9ca3af", // Gray-400
+    inactiveDark: "#6b7280", // Gray-500
+
+    // Background colors
+    backgroundLight: "#ffffff",
+    backgroundDark: "#0f0f0f",
+
+    // Border/separator colors
+    borderLight: "#f3f4f6", // Gray-100
+    borderDark: "#1f2937", // Gray-800
+  };
+
   const isDark = colorScheme === "dark";
-  const backgroundColor = isDark
-    ? Colors.dark.background || "#000"
-    : Colors.light.background || "#fff";
 
   return (
     <ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
       <StatusBar
         barStyle={isDark ? "light-content" : "dark-content"}
-        backgroundColor={backgroundColor}
+        backgroundColor={
+          isDark ? colors.backgroundDark : colors.backgroundLight
+        }
       />
       <Stack
-        screenOptions={({ navigation }) => ({
+        screenOptions={{
           headerStyle: {
-            backgroundColor,
-            borderBottomWidth: 0,
+            backgroundColor: isDark
+              ? colors.backgroundDark
+              : colors.backgroundLight,
           },
+          headerShadowVisible: false,
           headerTitle: () => (
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <FontAwesome5
+            <View style={styles.headerContainer}>
+              <HugeiconsIcon
+                icon={StickyNote01Icon}
                 name="tasks"
-                size={22}
+                size={24}
                 color={isDark ? "#fff" : "#1a1a1a"}
-                style={{ marginRight: 10 }}
+                strokeWidth={2}
               />
               <Text
-                style={{
-                  fontSize: 20,
-                  fontWeight: "600",
-                  color: isDark ? "#fff" : "#1a1a1a",
-                  letterSpacing: 0.5,
-                }}
+                style={[
+                  styles.headerTitle,
+                  { color: isDark ? "#fff" : "#1a1a1a" },
+                ]}
               >
                 My Tasks
               </Text>
             </View>
           ),
           headerRight: () => (
-            <Pressable onPress={() => router.push("/settings")}>
-              <Ionicons
+            <Pressable
+              onPress={() => {
+                if (pathname !== "/settings") {
+                  router.push("/settings");
+                }
+              }}
+              style={styles.settingsButton}
+            >
+              <HugeiconsIcon
+                icon={Setting07Icon}
                 name="settings-outline"
-                size={24}
+                size={22}
                 color={isDark ? "#fff" : "#1a1a1a"}
+                strokeWidth={1.8}
               />
             </Pressable>
           ),
-        })}
+        }}
       >
-        <Stack.Screen name="(tabs)" options={{ title: "Home" }} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: true }} />
       </Stack>
     </ThemeProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  headerContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    letterSpacing: 0.3,
+  },
+  settingsButton: {
+    padding: 8,
+    borderRadius: 8,
+  },
+});

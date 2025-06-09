@@ -6,7 +6,29 @@ interface TasksState {
 }
 
 const initialState: TasksState = {
-  tasks: [],
+  tasks: [
+    {
+      id: "1",
+      desc: "Buy groceries",
+      date: "2025-06-10",
+      priority: "medium",
+      isCompleted: false,
+    },
+    {
+      id: "2",
+      desc: "Finish React Native project",
+      date: "2025-06-12",
+      priority: "high",
+      isCompleted: false,
+    },
+    {
+      id: "3",
+      desc: "Read a book",
+      date: "2025-06-11",
+      priority: "low",
+      isCompleted: true,
+    },
+  ],
 };
 
 const tasksSlice = createSlice({
@@ -33,9 +55,15 @@ const tasksSlice = createSlice({
     clearTasks: (state) => {
       state.tasks = [];
     },
+    markAsCompleted: (state, action: PayloadAction<string>) => {
+      const task = state.tasks.find((task) => task.id === action.payload);
+      if (task) {
+        task.isCompleted = true;
+      }
+    },
   },
 });
 
-export const { addTask, removeTask, updateTask, clearTasks } =
+export const { addTask, removeTask, updateTask, clearTasks, markAsCompleted } =
   tasksSlice.actions;
 export default tasksSlice.reducer;

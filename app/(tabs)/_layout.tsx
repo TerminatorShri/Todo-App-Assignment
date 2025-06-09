@@ -1,41 +1,83 @@
-import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import CompletedScreen from "./completed";
-import PendingScreen from "./pending";
-
-const TopTabs = createMaterialTopTabNavigator();
+import { TaskAdd01Icon, TaskDaily01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react-native";
+import { Tabs } from "expo-router";
 
 export default function TaskTabsLayout() {
   const colorScheme = useColorScheme();
+  const isDark = colorScheme === "dark";
+
+  const colors = {
+    // Active tab colors
+    activeLight: "#059669", // Green-600
+    activeDark: "#10b981", // Green-500
+
+    // Inactive tab colors
+    inactiveLight: "#9ca3af", // Gray-400
+    inactiveDark: "#6b7280", // Gray-500
+
+    // Background colors
+    backgroundLight: "#ffffff",
+    backgroundDark: "#0f0f0f",
+
+    // Border/separator colors
+    borderLight: "#f3f4f6", // Gray-100
+    borderDark: "#1f2937", // Gray-800
+  };
 
   return (
-    <TopTabs.Navigator
+    <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
-        tabBarInactiveTintColor: colorScheme === "dark" ? "#8E8E93" : "#6D6D70",
-        tabBarIndicatorStyle: {
-          backgroundColor: Colors[colorScheme ?? "light"].tint,
-          height: 3,
-          borderRadius: 2,
+        tabBarActiveTintColor: isDark ? colors.activeDark : colors.activeLight,
+        tabBarInactiveTintColor: isDark
+          ? colors.inactiveDark
+          : colors.inactiveLight,
+        tabBarStyle: {
+          backgroundColor: isDark
+            ? colors.backgroundDark
+            : colors.backgroundLight,
+          borderTopWidth: 0,
+          elevation: 0,
+          shadowOpacity: 0,
         },
         tabBarLabelStyle: {
-          textTransform: "capitalize",
+          fontSize: 12,
           fontWeight: "600",
-          fontSize: 16,
-          letterSpacing: 0.5,
         },
-        tabBarStyle: {
-          backgroundColor: colorScheme === "dark" ? "#1a1a1a" : "#fff",
-          borderTopWidth: 0,
+        tabBarIconStyle: {
+          marginBottom: 0,
         },
-        tabBarContentContainerStyle: {
-          paddingVertical: 4,
-        },
+        headerShown: false,
       }}
     >
-      <TopTabs.Screen name="pending" component={PendingScreen} />
-      <TopTabs.Screen name="completed" component={CompletedScreen} />
-    </TopTabs.Navigator>
+      <Tabs.Screen
+        name="(pending)"
+        options={{
+          title: "Pending",
+          tabBarIcon: ({ color, focused }) => (
+            <HugeiconsIcon
+              icon={TaskAdd01Icon}
+              size={focused ? 26 : 24}
+              color={color}
+              strokeWidth={focused ? 2.5 : 2}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="completed"
+        options={{
+          title: "Completed",
+          tabBarIcon: ({ color, focused }) => (
+            <HugeiconsIcon
+              icon={TaskDaily01Icon}
+              size={focused ? 26 : 24}
+              color={color}
+              strokeWidth={focused ? 2.5 : 2}
+            />
+          ),
+        }}
+      />
+    </Tabs>
   );
 }

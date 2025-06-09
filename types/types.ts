@@ -3,4 +3,5 @@ export interface Task {
   desc: string;
   date: string;
   priority: "low" | "medium" | "high";
+  isCompleted: boolean;
 }
