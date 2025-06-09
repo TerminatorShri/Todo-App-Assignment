@@ -1,6 +1,9 @@
 import { store } from "@/constants/Store";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { Setting07Icon, StickyNote01Icon } from "@hugeicons/core-free-icons";
+import {
+  InformationCircleIcon,
+  StickyNote01Icon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import {
   DarkTheme,
@@ -81,15 +84,14 @@ export default function RootLayout() {
             headerRight: () => (
               <Pressable
                 onPress={() => {
-                  if (pathname !== "/settings") {
-                    router.push("/settings");
+                  if (pathname !== "/info") {
+                    router.push("/info");
                   }
                 }}
                 style={styles.settingsButton}
               >
                 <HugeiconsIcon
-                  icon={Setting07Icon}
-                  name="settings-outline"
+                  icon={InformationCircleIcon}
                   size={24}
                   color={isDark ? colors.activeLight : colors.activeDark}
                   strokeWidth={1.8}
@@ -99,6 +101,15 @@ export default function RootLayout() {
           }}
         >
           <Stack.Screen name="(tabs)" options={{ headerShown: true }} />
+          <Stack.Screen
+            name="info"
+            options={{
+              headerShown: true,
+              headerTitle: "",
+              title: "App Info",
+              headerTintColor: isDark ? colors.activeDark : colors.activeLight,
+            }}
+          />
         </Stack>
       </ThemeProvider>
     </Provider>
