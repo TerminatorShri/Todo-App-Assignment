@@ -1,3 +1,5 @@
+import { addTask, updateTask } from "@/contexts/taskSlice";
+import { useAppDispatch } from "@/hooks/useStore";
 import { Task } from "@/types/types";
 import {
   ArrowUp02Icon,
@@ -11,7 +13,7 @@ import { HugeiconsIcon } from "@hugeicons/react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { format } from "date-fns";
 import { Formik } from "formik";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Modal,
   ScrollView,
@@ -27,11 +29,11 @@ import * as Yup from "yup";
 
 type TaskFormProps = {
   initialTask?: Task;
-  onSubmit: (task: Task) => void;
+  onTaskSave: () => void;
   mode?: "add" | "edit";
 };
 
-const TaskForm = ({ initialTask, onSubmit, mode = "add" }: TaskFormProps) => {
+const TaskForm = ({ initialTask, onTaskSave, mode = "add" }: TaskFormProps) => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
 
@@ -78,6 +80,20 @@ const TaskForm = ({ initialTask, onSubmit, mode = "add" }: TaskFormProps) => {
   const openTimePicker = () => {
     setPickerMode("time");
     setShowDateTimePicker(true);
+  };
+
+  const dispatch = useAppDispatch();
+
+  const handleSubmit = (task: Task) => {
+    if (mode === "edit" && initialTask) {
+      console.log("Editing task:", { ...initialTask, ...task });
+      dispatch(updateTask({ ...initialTask, ...task }));
+      onTaskSave();
+    } else {
+      console.log("Adding new task:", task);
+      dispatch(addTask(task));
+      onTaskSave();
+    }
   };
 
   const DateTimePickerModal = () => (
@@ -190,9 +206,18 @@ const TaskForm = ({ initialTask, onSubmit, mode = "add" }: TaskFormProps) => {
     </Modal>
   );
 
+  useEffect(() => {
+    console.log("Initial task:", initialTask);
+    if (initialTask) {
+      setSelectedDateTime(new Date(initialTask.date));
+      setSelectedPriority(initialTask.priority);
+    }
+  }, [initialTask]);
+
   return (
     <>
       <Formik
+        enableReinitialize
         initialValues={{
           id: initialTask?.id || Date.now().toString(),
           desc: initialTask?.desc || "",
@@ -206,10 +231,10 @@ const TaskForm = ({ initialTask, onSubmit, mode = "add" }: TaskFormProps) => {
             ...values,
             date: selectedDateTime.toISOString(),
             priority: selectedPriority,
-            isCompleted: initialTask?.isCompleted || false,
+            isCompleted: false,
           };
           console.log("Submitting task:", task);
-          onSubmit(task);
+          handleSubmit(task);
         }}
       >
         {({

@@ -1,3 +1,4 @@
+import { store } from "@/constants/Store";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { Setting07Icon, StickyNote01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react-native";
@@ -9,6 +10,7 @@ import {
 import { useFonts } from "expo-font";
 import { Stack, usePathname, useRouter } from "expo-router";
 import { Pressable, StatusBar, StyleSheet, Text, View } from "react-native";
+import { Provider } from "react-redux";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -41,63 +43,65 @@ export default function RootLayout() {
   const isDark = colorScheme === "dark";
 
   return (
-    <ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
-      <StatusBar
-        barStyle={isDark ? "light-content" : "dark-content"}
-        backgroundColor={
-          isDark ? colors.backgroundDark : colors.backgroundLight
-        }
-      />
-      <Stack
-        screenOptions={{
-          headerStyle: {
-            backgroundColor: isDark
-              ? colors.backgroundDark
-              : colors.backgroundLight,
-          },
-          headerShadowVisible: false,
-          headerTitle: () => (
-            <View style={styles.headerContainer}>
-              <HugeiconsIcon
-                icon={StickyNote01Icon}
-                name="tasks"
-                size={24}
-                color={isDark ? colors.activeDark : colors.activeLight}
-                strokeWidth={2}
-              />
-              <Text
-                style={[
-                  styles.headerTitle,
-                  { color: isDark ? colors.activeDark : colors.activeLight },
-                ]}
+    <Provider store={store}>
+      <ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
+        <StatusBar
+          barStyle={isDark ? "light-content" : "dark-content"}
+          backgroundColor={
+            isDark ? colors.backgroundDark : colors.backgroundLight
+          }
+        />
+        <Stack
+          screenOptions={{
+            headerStyle: {
+              backgroundColor: isDark
+                ? colors.backgroundDark
+                : colors.backgroundLight,
+            },
+            headerShadowVisible: false,
+            headerTitle: () => (
+              <View style={styles.headerContainer}>
+                <HugeiconsIcon
+                  icon={StickyNote01Icon}
+                  name="tasks"
+                  size={24}
+                  color={isDark ? colors.activeDark : colors.activeLight}
+                  strokeWidth={2}
+                />
+                <Text
+                  style={[
+                    styles.headerTitle,
+                    { color: isDark ? colors.activeDark : colors.activeLight },
+                  ]}
+                >
+                  My Tasks
+                </Text>
+              </View>
+            ),
+            headerRight: () => (
+              <Pressable
+                onPress={() => {
+                  if (pathname !== "/settings") {
+                    router.push("/settings");
+                  }
+                }}
+                style={styles.settingsButton}
               >
-                My Tasks
-              </Text>
-            </View>
-          ),
-          headerRight: () => (
-            <Pressable
-              onPress={() => {
-                if (pathname !== "/settings") {
-                  router.push("/settings");
-                }
-              }}
-              style={styles.settingsButton}
-            >
-              <HugeiconsIcon
-                icon={Setting07Icon}
-                name="settings-outline"
-                size={24}
-                color={isDark ? colors.activeLight : colors.activeDark}
-                strokeWidth={1.8}
-              />
-            </Pressable>
-          ),
-        }}
-      >
-        <Stack.Screen name="(tabs)" options={{ headerShown: true }} />
-      </Stack>
-    </ThemeProvider>
+                <HugeiconsIcon
+                  icon={Setting07Icon}
+                  name="settings-outline"
+                  size={24}
+                  color={isDark ? colors.activeLight : colors.activeDark}
+                  strokeWidth={1.8}
+                />
+              </Pressable>
+            ),
+          }}
+        >
+          <Stack.Screen name="(tabs)" options={{ headerShown: true }} />
+        </Stack>
+      </ThemeProvider>
+    </Provider>
   );
 }
 

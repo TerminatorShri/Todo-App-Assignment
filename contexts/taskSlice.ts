@@ -16,7 +16,7 @@ const initialState: TasksState = {
     },
     {
       id: "2",
-      desc: "Finish React Native project",
+      desc: "Finish React Native project as soon as possible",
       date: "2025-06-12",
       priority: "high",
       isCompleted: false,
