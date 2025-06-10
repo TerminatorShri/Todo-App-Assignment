@@ -50,6 +50,10 @@ export default function RootLayout() {
     borderDark: "#1f2937", // Gray-800
   };
 
+  const [fontsLoaded] = useFonts({
+    NovaSquare_Regular: require("@/assets/fonts/NovaSquare-Regular.ttf"),
+  });
+
   const isDark = colorScheme === "dark";
 
   useEffect(() => {
@@ -141,9 +145,9 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    letterSpacing: 0.3,
+    fontSize: 20,
+    fontFamily: "NovaSquare_Regular",
+    letterSpacing: 0.1,
   },
   settingsButton: {
     padding: 8,

@@ -6,6 +6,7 @@ import {
   UserIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react-native";
+import { useFonts } from "expo-font";
 import React from "react";
 import {
   ScrollView,
@@ -34,14 +35,14 @@ const InfoScreen = () => {
       icon: CheckmarkCircle02Icon,
       title: "Smart Task Management",
       description:
-        "Organize your tasks with priority levels and track completion status efficiently",
+        "Organize your tasks with priority levels and track completion status efficiently and get notified",
       color: themeColors.primary,
     },
     {
       icon: Flag02Icon,
       title: "Priority-Based Organization",
       description:
-        "Set task priorities (Low, Medium, High) to focus on what matters most",
+        "Set task priorities (Low, Medium, High) to focus on what matters most and update them easily",
       color: "#f59e0b",
     },
     {
@@ -59,6 +60,16 @@ const InfoScreen = () => {
       color: "#8b5cf6",
     },
   ];
+
+  const [fontsLoaded] = useFonts({
+    TitilliumWeb_Bold: require("@/assets/fonts/TitilliumWeb-Bold.ttf"),
+    TitilliumWeb_SemiBold: require("@/assets/fonts/TitilliumWeb-SemiBold.ttf"),
+    FiraSans_Regular: require("@/assets/fonts/FiraSans-Regular.ttf"),
+    FiraSans_Bold: require("@/assets/fonts/FiraSans-Bold.ttf"),
+    FiraSans_Light: require("@/assets/fonts/FiraSans-Light.ttf"),
+    FiraSans_Italic: require("@/assets/fonts/FiraSans-Italic.ttf"),
+    NovaSquare_Regular: require("@/assets/fonts/NovaSquare-Regular.ttf"),
+  });
 
   return (
     <View
@@ -85,7 +96,7 @@ const InfoScreen = () => {
             />
           </View>
           <Text style={[styles.appTitle, { color: themeColors.text }]}>
-            TaskMaster Pro
+            PixelPlan
           </Text>
           <Text
             style={[styles.appVersion, { color: themeColors.textSecondary }]}
@@ -105,9 +116,9 @@ const InfoScreen = () => {
               { color: themeColors.textSecondary },
             ]}
           >
-            TaskMaster Pro is a powerful and intuitive task management
-            application designed to help you stay organized and productive.
-            Built with modern React Native technology for optimal performance.
+            PixelPlan is a powerful and intuitive task management application
+            designed to help you stay organized and productive. Built with
+            modern React Native technology for optimal performance.
           </Text>
         </View>
 
@@ -188,7 +199,7 @@ const InfoScreen = () => {
             </View>
             <View style={styles.developerContent}>
               <Text style={[styles.developerName, { color: themeColors.text }]}>
-                Built with ❤️ by TaskMaster Team
+                Built with ❤️ by TerminatorShri
               </Text>
               <Text
                 style={[
@@ -207,7 +218,7 @@ const InfoScreen = () => {
           <Text
             style={[styles.footerText, { color: themeColors.textSecondary }]}
           >
-            © 2024 TaskMaster Pro. All rights reserved.
+            © 2024 PixelPlan. All rights reserved.
           </Text>
         </View>
       </ScrollView>
@@ -247,27 +258,27 @@ const styles = StyleSheet.create({
   },
   appTitle: {
     fontSize: 28,
-    fontWeight: "700",
+    fontFamily: "NovaSquare_Regular",
     letterSpacing: -0.5,
     marginBottom: 4,
   },
   appVersion: {
     fontSize: 16,
-    fontWeight: "500",
+    fontFamily: "FiraSans_Regular",
   },
   section: {
     marginBottom: 32,
   },
   sectionTitle: {
     fontSize: 22,
-    fontWeight: "700",
+    fontFamily: "TitilliumWeb_Bold",
     marginBottom: 16,
     letterSpacing: -0.3,
   },
   sectionDescription: {
     fontSize: 16,
     lineHeight: 24,
-    fontWeight: "400",
+    fontFamily: "FiraSans_Regular",
   },
   featureCard: {
     flexDirection: "row",
@@ -294,14 +305,14 @@ const styles = StyleSheet.create({
   },
   featureTitle: {
     fontSize: 17,
-    fontWeight: "600",
+    fontFamily: "TitilliumWeb_SemiBold",
     marginBottom: 4,
     lineHeight: 22,
   },
   featureDescription: {
     fontSize: 15,
     lineHeight: 20,
-    fontWeight: "400",
+    fontFamily: "FiraSans_Regular",
   },
   developerCard: {
     flexDirection: "row",
@@ -327,12 +338,12 @@ const styles = StyleSheet.create({
   },
   developerName: {
     fontSize: 17,
-    fontWeight: "600",
+    fontFamily: "FiraSans_Bold",
     marginBottom: 4,
   },
   developerDescription: {
     fontSize: 15,
-    fontWeight: "400",
+    fontFamily: "FiraSans_Regular",
   },
   footer: {
     alignItems: "center",
@@ -343,6 +354,6 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 14,
-    fontWeight: "500",
+    fontFamily: "FiraSans_Light",
   },
 });

@@ -16,6 +16,7 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { format } from "date-fns";
+import { useFonts } from "expo-font";
 import { Formik } from "formik";
 import React, { useEffect, useState } from "react";
 import {
@@ -53,6 +54,14 @@ const TaskForm = ({ initialTask, onTaskSave, mode = "add" }: TaskFormProps) => {
   const [pickerMode, setPickerMode] = useState<"date" | "time">("date");
   const [selectedNotificationTime, setSelectedNotificationTime] =
     useState<number>(initialTask?.notificationMinutesBefore || 15);
+
+  const [fontsLoaded] = useFonts({
+    TitilliumWeb_Bold: require("@/assets/fonts/TitilliumWeb-Bold.ttf"),
+    TitilliumWeb_SemiBold: require("@/assets/fonts/TitilliumWeb-SemiBold.ttf"),
+    FiraSans_Regular: require("@/assets/fonts/FiraSans-Regular.ttf"),
+    FiraSans_Bold: require("@/assets/fonts/FiraSans-Bold.ttf"),
+    FiraSans_Light: require("@/assets/fonts/FiraSans-Light.ttf"),
+  });
 
   const priorityColors = {
     low: isDark ? "#10b981" : "#059669",
@@ -582,16 +591,17 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   label: {
-    fontWeight: "600",
+    fontFamily: "TitilliumWeb_Bold",
     fontSize: 16,
   },
   input: {
     borderWidth: 1,
     borderRadius: 12,
     padding: 16,
-    fontSize: 16,
+    fontSize: 15,
     minHeight: 80,
     textAlignVertical: "top",
+    fontFamily: "FiraSans_Regular",
   },
   error: {
     color: "#ef4444",
@@ -617,12 +627,12 @@ const styles = StyleSheet.create({
   },
   actionButtonLabel: {
     fontSize: 12,
-    fontWeight: "500",
+    fontFamily: "TitilliumWeb_SemiBold",
     marginBottom: 2,
   },
   actionButtonValue: {
     fontSize: 12,
-    fontWeight: "600",
+    fontFamily: "TitilliumWeb_SemiBold",
   },
   notificationSection: {
     gap: 8,
@@ -651,7 +661,7 @@ const styles = StyleSheet.create({
   saveButtonText: {
     color: "#ffffff",
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: "FiraSans_Bold",
   },
   priorityDot: {
     width: 12,
@@ -707,6 +717,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     marginBottom: 16,
     textAlign: "center",
+    fontFamily: "TitilliumWeb_Bold",
   },
   priorityModalItem: {
     flexDirection: "row",
@@ -719,6 +730,7 @@ const styles = StyleSheet.create({
   priorityModalText: {
     fontSize: 16,
     flex: 1,
+    fontFamily: "FiraSans_Regular",
   },
   priorityModalCancel: {
     marginTop: 16,
@@ -727,5 +739,6 @@ const styles = StyleSheet.create({
   },
   priorityModalCancelText: {
     fontSize: 16,
+    fontFamily: "FiraSans_Light",
   },
 });

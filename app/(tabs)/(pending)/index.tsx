@@ -14,6 +14,7 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import { format, isThisMonth, isThisWeek, isToday } from "date-fns";
 import Checkbox from "expo-checkbox";
+import { useFonts } from "expo-font";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
@@ -85,6 +86,15 @@ export default function PendingScreen() {
   };
 
   const filteredTasks = getFilteredTasks();
+
+  const [fontsLoaded] = useFonts({
+    TitilliumWeb_Bold: require("@/assets/fonts/TitilliumWeb-Bold.ttf"),
+    TitilliumWeb_SemiBold: require("@/assets/fonts/TitilliumWeb-SemiBold.ttf"),
+    FiraSans_Regular: require("@/assets/fonts/FiraSans-Regular.ttf"),
+    FiraSans_Bold: require("@/assets/fonts/FiraSans-Bold.ttf"),
+    FiraSans_Light: require("@/assets/fonts/FiraSans-Light.ttf"),
+    FiraSans_Italic: require("@/assets/fonts/FiraSans-Italic.ttf"),
+  });
 
   const themeColors = {
     background: isDark ? "#0f0f0f" : "#ffffff",
@@ -670,13 +680,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerTitle: {
-    fontSize: 28,
-    fontWeight: "700",
+    fontSize: 24,
+    fontFamily: "TitilliumWeb_Bold",
     letterSpacing: -0.5,
   },
   headerSubtitle: {
     fontSize: 15,
-    fontWeight: "500",
+    fontFamily: "TitilliumWeb_SemiBold",
     marginTop: 4,
   },
   filterControls: {
@@ -694,7 +704,7 @@ const styles = StyleSheet.create({
   },
   filterControlText: {
     fontSize: 14,
-    fontWeight: "600",
+    fontFamily: "FiraSans_Bold",
   },
   activeFiltersContainer: {
     flex: 1,
@@ -702,8 +712,7 @@ const styles = StyleSheet.create({
   },
   activeFiltersText: {
     fontSize: 13,
-    fontWeight: "500",
-    fontStyle: "italic",
+    fontFamily: "FiraSans_Italic",
   },
   listContainer: {
     paddingHorizontal: 20,
@@ -740,7 +749,7 @@ const styles = StyleSheet.create({
   taskDescription: {
     flex: 1,
     fontSize: 17,
-    fontWeight: "600",
+    fontFamily: "FiraSans_Regular",
     lineHeight: 22,
     marginBottom: 0,
     flexWrap: "wrap",
@@ -775,12 +784,12 @@ const styles = StyleSheet.create({
   },
   priorityText: {
     fontSize: 12,
-    fontWeight: "700",
+    fontFamily: "FiraSans_Bold",
     letterSpacing: 0.5,
   },
   dateText: {
     fontSize: 13,
-    fontWeight: "500",
+    fontFamily: "FiraSans_Regular",
   },
   emptyState: {
     alignItems: "center",
@@ -788,11 +797,12 @@ const styles = StyleSheet.create({
   },
   emptyStateText: {
     fontSize: 20,
-    fontWeight: "600",
+    fontFamily: "TitilliumWeb_SemiBold",
   },
   emptyStateSubtext: {
     fontSize: 15,
     textAlign: "center",
+    fontFamily: "TitilliumWeb_Regular",
   },
   fab: {
     position: "absolute",
@@ -831,12 +841,12 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 22,
-    fontWeight: "700",
+    fontFamily: "TitilliumWeb_Bold",
     marginBottom: 4,
   },
   modalSubtitle: {
     fontSize: 15,
-    fontWeight: "500",
+    fontFamily: "TitilliumWeb_SemiBold",
   },
   filterOptions: {
     marginBottom: 20,
@@ -846,7 +856,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 14,
-    fontWeight: "700",
+    fontFamily: "TitilliumWeb_Bold",
     marginBottom: 12,
   },
   filterRow: {
@@ -877,8 +887,8 @@ const styles = StyleSheet.create({
   },
   filterOptionText: {
     fontSize: 14,
-    fontWeight: "600",
     flexShrink: 1,
+    fontFamily: "FiraSans_Regular",
   },
   countBadge: {
     paddingHorizontal: 8,
@@ -889,7 +899,7 @@ const styles = StyleSheet.create({
   },
   countText: {
     fontSize: 12,
-    fontWeight: "600",
+    fontFamily: "FiraSans_Regular",
   },
   closeButton: {
     paddingVertical: 14,
@@ -899,6 +909,6 @@ const styles = StyleSheet.create({
   closeButtonText: {
     color: "#ffffff",
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: "TitilliumWeb_Bold",
   },
 });

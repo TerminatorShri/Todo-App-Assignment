@@ -1,6 +1,7 @@
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { TaskAdd01Icon, TaskDaily01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react-native";
+import { useFonts } from "expo-font";
 import { Tabs } from "expo-router";
 
 export default function TaskTabsLayout() {
@@ -25,6 +26,10 @@ export default function TaskTabsLayout() {
     borderDark: "#1f2937", // Gray-800
   };
 
+  const [fontsLoaded] = useFonts({
+    TitilliumWeb_SemiBold: require("@/assets/fonts/TitilliumWeb-SemiBold.ttf"),
+  });
+
   return (
     <Tabs
       screenOptions={{
@@ -42,7 +47,7 @@ export default function TaskTabsLayout() {
         },
         tabBarLabelStyle: {
           fontSize: 12,
-          fontWeight: "600",
+          fontFamily: "TitilliumWeb_SemiBold",
         },
         tabBarIconStyle: {
           marginBottom: 0,
