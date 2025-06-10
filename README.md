@@ -1,50 +1,32 @@
-# Welcome to your Expo app 👋
+# PixelPlan
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## Getting Started
 
-## Get started
+Follow these steps to set up and run the project:
 
-1. Install dependencies
+1. **Clone the repository** to your local machine.
+2. Open a terminal, navigate to the project root directory, and install dependencies:
 
    ```bash
    npm install
    ```
 
-2. Start the app
+3. **Install the [Expo Go](https://expo.dev/client)** app on your Android or iOS device from the Play Store or App Store.
+4. Start the development server:
 
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+5. Scan the QR code displayed in your terminal using the Expo Go app to launch PixelPlan on your device.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Features
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- **Smart Task Scheduling:** Organize your tasks by priority and receive timely reminders so you never miss an important deadline.
+- **Flexible Task Management:** Easily add, edit, and update your tasks as your plans change.
+- **Automatic Reminder Handling:** Reminders are automatically cancelled when a task is completed or deleted, keeping your notifications relevant.
+- **Advanced Filtering & Sorting:** Effortlessly filter and sort tasks based on priority and predefined time intervals to focus on what matters most.
 
-## Get a fresh project
+## Challenges Faced
 
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+While implementing persistent storage using Expo SQLite and Drizzle ORM, I encountered issues where some functionalities did not work as expected. Specifically, I faced race conditions and database locking problems, even though only a single transaction was being executed at a time. As a result, database operations were not performed reliably. Despite investigating the root cause, I was unable to find sufficient documentation or a solution for this issue. Due to these challenges, I reverted to using store-based state management for the application.
