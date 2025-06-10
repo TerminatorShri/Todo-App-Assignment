@@ -13,7 +13,7 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import { format, isThisMonth, isThisWeek, isToday } from "date-fns";
 import { useFonts } from "expo-font";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Alert,
   FlatList,
@@ -38,10 +38,9 @@ export default function CompletedScreen() {
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("all");
   const [showFilterModal, setShowFilterModal] = useState(false);
+  const [completedTasks, setCompletedTasks] = useState<Task[]>([]);
 
-  const completedTasks = useAppSelector((state) =>
-    state.tasks.tasks.filter((task) => task.isCompleted)
-  );
+  const allTasks = useAppSelector((state) => state.tasks.tasks);
 
   // Filter tasks based on selected priority and time filter
   const getFilteredTasks = () => {
@@ -505,6 +504,10 @@ export default function CompletedScreen() {
 
     return filters.length > 0 ? ` (${filters.join(", ")})` : "";
   };
+
+  useEffect(() => {
+    setCompletedTasks(allTasks.filter((task) => task.isCompleted));
+  }, [allTasks, selectedPriority, timeFilter, sortOrder, isDark]);
 
   return (
     <ThemedView

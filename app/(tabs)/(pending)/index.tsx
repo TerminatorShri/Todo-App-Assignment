@@ -17,7 +17,7 @@ import { format, isThisMonth, isThisWeek, isToday } from "date-fns";
 import Checkbox from "expo-checkbox";
 import { useFonts } from "expo-font";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   FlatList,
   Modal,
@@ -43,10 +43,9 @@ export default function PendingScreen() {
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("all");
   const [showFilterModal, setShowFilterModal] = useState(false);
+  const [pendingTasks, setPendingTasks] = useState<Task[]>([]);
 
-  const pendingTasks = useAppSelector((state) =>
-    state.tasks.tasks.filter((t) => !t.isCompleted)
-  );
+  const allTasks = useAppSelector((state) => state.tasks.tasks);
 
   // Filter tasks based on selected priority and time filter
   const getFilteredTasks = () => {
@@ -542,6 +541,12 @@ export default function PendingScreen() {
 
     return filters.length > 0 ? ` (${filters.join(", ")})` : "";
   };
+
+  useEffect(() => {
+    setPendingTasks(
+      allTasks.filter((task) => !task.isCompleted)
+    );
+  }, [allTasks, selectedPriority, timeFilter, sortOrder, isDark]);
 
   return (
     <ThemedView
