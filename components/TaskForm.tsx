@@ -1,4 +1,5 @@
 import { addTask, updateTask } from "@/contexts/taskSlice";
+import { updateTaskInDb } from "@/db/handleTasks";
 import { useAppDispatch } from "@/hooks/useStore";
 import {
   cancelNotification,
@@ -130,38 +131,62 @@ const TaskForm = ({ initialTask, onTaskSave, mode = "add" }: TaskFormProps) => {
     );
   };
 
-  const handleSubmit = (task: Task) => {
-    if (mode === "edit" && initialTask) {
-      console.log("Editing task:", { ...initialTask, ...task });
-      if (initialTask.notificationId) {
-        cancelNotification(initialTask.notificationId);
-      }
-      scheduleNotification({ ...initialTask, ...task }).then(
-        (notificationId) => {
-          if (notificationId) {
-            console.log("Notification updated with ID:", notificationId);
-            dispatch(updateTask({ ...task, notificationId }));
-            toastTiming(
-              task.date,
-              task.notificationMinutesBefore?.toString() || "0"
-            );
-          }
+  const handleSubmit = async (task: Task) => {
+    try {
+      if (mode === "edit" && initialTask) {
+        console.log("Editing task:", { ...initialTask, ...task });
+
+        // Cancel previous notification if it exists
+        if (initialTask.notificationId) {
+          await cancelNotification(initialTask.notificationId);
         }
-      );
-      onTaskSave();
-    } else {
-      console.log("Adding new task:", task);
-      scheduleNotification(task).then((notificationId) => {
+
+        // Schedule updated notification
+        const notificationId = await scheduleNotification({
+          ...initialTask,
+          ...task,
+        });
+
+        console.log("Notification ID after scheduling:", notificationId);
+
+        if (notificationId) {
+          const updatedTask = { ...task, notificationId };
+
+          console.log("🚀 ~ handleSubmit ~ updatedTask:", updatedTask);
+          dispatch(updateTask(updatedTask));
+
+          try {
+            await updateTaskInDb(updatedTask);
+          } catch (error) {
+            console.error("Failed to update task in DB:", error);
+          }
+
+          toastTiming(
+            task.date,
+            task.notificationMinutesBefore?.toString() || "0"
+          );
+
+          onTaskSave();
+        }
+      } else {
+        console.log("Adding new task:", task);
+
+        const notificationId = await scheduleNotification(task);
+
+        const newTask = notificationId ? { ...task, notificationId } : task;
+
+        dispatch(addTask(newTask));
+
         if (notificationId) {
           console.log("Notification scheduled with ID:", notificationId);
-          dispatch(addTask({ ...task, notificationId }));
           toastTiming(
             task.date,
             task.notificationMinutesBefore?.toString() || "0"
           );
         }
-        onTaskSave();
-      });
+      }
+    } catch (error) {
+      console.error("Error in handleSubmit:", error);
     }
   };
 

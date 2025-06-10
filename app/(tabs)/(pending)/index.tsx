@@ -720,7 +720,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   filterControlText: {
-    fontSize: 14,
+    fontSize: 12,
     fontFamily: "FiraSans_Bold",
   },
   activeFiltersContainer: {
@@ -728,7 +728,7 @@ const styles = StyleSheet.create({
     paddingLeft: 8,
   },
   activeFiltersText: {
-    fontSize: 13,
+    fontSize: 12,
     fontFamily: "FiraSans_Italic",
   },
   listContainer: {
