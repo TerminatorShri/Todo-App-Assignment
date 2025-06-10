@@ -3,12 +3,15 @@ import { clearTasks } from "@/contexts/taskSlice";
 import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
 import { Task } from "@/types/types";
 import {
+  ArrowDown01Icon,
+  ArrowUp01Icon,
+  Calendar02Icon,
   Delete02Icon,
   FilterIcon,
   Flag02Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react-native";
-import { format } from "date-fns";
+import { format, isThisMonth, isThisWeek, isToday } from "date-fns";
 import { useState } from "react";
 import {
   Alert,
@@ -23,23 +26,61 @@ import {
 } from "react-native";
 
 type Priority = "low" | "medium" | "high" | "all";
+type SortOrder = "asc" | "desc";
+type TimeFilter = "daily" | "weekly" | "monthly" | "all";
 
 export default function CompletedScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
   const dispatch = useAppDispatch();
   const [selectedPriority, setSelectedPriority] = useState<Priority>("all");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
+  const [timeFilter, setTimeFilter] = useState<TimeFilter>("all");
   const [showFilterModal, setShowFilterModal] = useState(false);
 
   const completedTasks = useAppSelector((state) =>
     state.tasks.tasks.filter((task) => task.isCompleted)
   );
 
-  // Filter tasks based on selected priority
-  const filteredTasks =
-    selectedPriority === "all"
-      ? completedTasks
-      : completedTasks.filter((task) => task.priority === selectedPriority);
+  // Filter tasks based on selected priority and time filter
+  const getFilteredTasks = () => {
+    let filtered = completedTasks;
+
+    // Filter by priority
+    if (selectedPriority !== "all") {
+      filtered = filtered.filter((task) => task.priority === selectedPriority);
+    }
+
+    // Filter by time
+    if (timeFilter !== "all") {
+      const now = new Date();
+      filtered = filtered.filter((task) => {
+        const taskDate = new Date(task.date);
+        switch (timeFilter) {
+          case "daily":
+            return isToday(taskDate);
+          case "weekly":
+            return isThisWeek(taskDate, { weekStartsOn: 1 }); // Monday as start of week
+          case "monthly":
+            return isThisMonth(taskDate);
+          default:
+            return true;
+        }
+      });
+    }
+
+    // Sort tasks by priority
+    const priorityOrder = { high: 3, medium: 2, low: 1 };
+    filtered.sort((a, b) => {
+      const priorityDiff =
+        priorityOrder[a.priority] - priorityOrder[b.priority];
+      return sortOrder === "asc" ? priorityDiff : -priorityDiff;
+    });
+
+    return filtered;
+  };
+
+  const filteredTasks = getFilteredTasks();
 
   const clearAllCompleted = () => {
     Alert.alert(
@@ -70,6 +111,8 @@ export default function CompletedScreen() {
     primary: isDark ? "#10b981" : "#059669",
     modalBackground: isDark ? "#000000aa" : "#000000aa",
     modalSurface: isDark ? "#1f1f1f" : "#ffffff",
+    accent: isDark ? "#3b82f6" : "#2563eb",
+    warning: isDark ? "#f59e0b" : "#d97706",
   };
 
   const priorityColors = {
@@ -80,14 +123,39 @@ export default function CompletedScreen() {
 
   const priorityLabels = {
     all: "All Tasks",
-    low: "Low Priority",
-    medium: "Medium Priority",
-    high: "High Priority",
+    low: "Low",
+    medium: "Medium",
+    high: "High",
+  };
+
+  const timeLabels = {
+    all: "All Time",
+    daily: "Today",
+    weekly: "This Week",
+    monthly: "This Month",
   };
 
   const getPriorityCount = (priority: Priority) => {
     if (priority === "all") return completedTasks.length;
     return completedTasks.filter((task) => task.priority === priority).length;
+  };
+
+  const getTimeFilterCount = (filter: TimeFilter) => {
+    if (filter === "all") return completedTasks.length;
+    const now = new Date();
+    return completedTasks.filter((task) => {
+      const taskDate = new Date(task.date);
+      switch (filter) {
+        case "daily":
+          return isToday(taskDate);
+        case "weekly":
+          return isThisWeek(taskDate, { weekStartsOn: 1 });
+        case "monthly":
+          return isThisMonth(taskDate);
+        default:
+          return true;
+      }
+    }).length;
   };
 
   const renderItem = ({ item }: { item: Task }) => (
@@ -155,16 +223,16 @@ export default function CompletedScreen() {
       <Text
         style={[styles.emptyStateText, { color: themeColors.textSecondary }]}
       >
-        {selectedPriority === "all"
+        {selectedPriority === "all" && timeFilter === "all"
           ? "No completed tasks"
-          : `No completed ${selectedPriority} priority tasks`}
+          : "No matching completed tasks"}
       </Text>
       <Text
         style={[styles.emptyStateSubtext, { color: themeColors.textSecondary }]}
       >
-        {selectedPriority === "all"
+        {selectedPriority === "all" && timeFilter === "all"
           ? "Complete some tasks to see them here"
-          : `Complete some ${selectedPriority} priority tasks to see them here`}
+          : `Try adjusting your filters`}
       </Text>
     </View>
   );
@@ -192,7 +260,7 @@ export default function CompletedScreen() {
         >
           <View style={styles.modalHeader}>
             <Text style={[styles.modalTitle, { color: themeColors.text }]}>
-              Filter by Priority
+              Filter & Sort Tasks
             </Text>
             <Text
               style={[
@@ -200,73 +268,206 @@ export default function CompletedScreen() {
                 { color: themeColors.textSecondary },
               ]}
             >
-              Choose which tasks to display
+              Customize how tasks are displayed
             </Text>
           </View>
 
           <ScrollView style={styles.filterOptions}>
-            {(["all", "high", "medium", "low"] as Priority[]).map(
-              (priority) => (
-                <Pressable
-                  key={priority}
-                  style={[
-                    styles.filterOption,
-                    {
-                      backgroundColor:
-                        selectedPriority === priority
-                          ? isDark
-                            ? "#1f2937"
-                            : "#f3f4f6"
-                          : "transparent",
-                      borderColor:
-                        selectedPriority === priority
-                          ? themeColors.primary
-                          : themeColors.border,
-                    },
-                  ]}
-                  onPress={() => {
-                    setSelectedPriority(priority);
-                    setShowFilterModal(false);
-                  }}
+            {/* Priority Filter Section */}
+            <View style={styles.filterSection}>
+              <Text style={[styles.sectionTitle, { color: themeColors.text }]}>
+                Priority Filter
+              </Text>
+              <View style={styles.filterRow}>
+                {(["all", "high", "medium", "low"] as Priority[]).map(
+                  (priority, index) => (
+                    <View key={priority} style={styles.filterOptionWrapper}>
+                      <Pressable
+                        style={[
+                          styles.filterOption,
+                          {
+                            backgroundColor:
+                              selectedPriority === priority
+                                ? isDark
+                                  ? "#1f2937"
+                                  : "#f3f4f6"
+                                : "transparent",
+                            borderColor:
+                              selectedPriority === priority
+                                ? themeColors.primary
+                                : themeColors.border,
+                          },
+                        ]}
+                        onPress={() => setSelectedPriority(priority)}
+                      >
+                        <View style={styles.filterOptionContent}>
+                          <View style={styles.filterOptionLeft}>
+                            {priority !== "all" && (
+                              <HugeiconsIcon
+                                icon={Flag02Icon}
+                                size={14}
+                                color={priorityColors[priority]}
+                                strokeWidth={1.75}
+                              />
+                            )}
+                            <Text
+                              style={[
+                                styles.filterOptionText,
+                                { color: themeColors.text, fontSize: 12 },
+                              ]}
+                            >
+                              {priorityLabels[priority]}
+                            </Text>
+                          </View>
+                          <View
+                            style={[
+                              styles.countBadge,
+                              { backgroundColor: themeColors.border },
+                            ]}
+                          >
+                            <Text
+                              style={[
+                                styles.countText,
+                                { color: themeColors.textSecondary },
+                              ]}
+                            >
+                              {getPriorityCount(priority)}
+                            </Text>
+                          </View>
+                        </View>
+                      </Pressable>
+                    </View>
+                  )
+                )}
+              </View>
+            </View>
+
+            {selectedPriority === "all" && (
+              // Sort Order Section
+              <View style={styles.filterSection}>
+                <Text
+                  style={[styles.sectionTitle, { color: themeColors.text }]}
                 >
-                  <View style={styles.filterOptionContent}>
-                    <View style={styles.filterOptionLeft}>
-                      {priority !== "all" && (
-                        <HugeiconsIcon
-                          icon={Flag02Icon}
-                          size={20}
-                          color={priorityColors[priority]}
-                          strokeWidth={1.75}
-                        />
-                      )}
-                      <Text
+                  Sort Order
+                </Text>
+                <View style={styles.filterRow}>
+                  {(["desc", "asc"] as SortOrder[]).map((order) => (
+                    <View key={order} style={styles.filterOptionWrapper}>
+                      <Pressable
                         style={[
-                          styles.filterOptionText,
-                          { color: themeColors.text },
+                          styles.filterOption,
+                          {
+                            backgroundColor:
+                              sortOrder === order
+                                ? isDark
+                                  ? "#1f2937"
+                                  : "#f3f4f6"
+                                : "transparent",
+                            borderColor:
+                              sortOrder === order
+                                ? themeColors.accent
+                                : themeColors.border,
+                          },
                         ]}
+                        onPress={() => setSortOrder(order)}
                       >
-                        {priorityLabels[priority]}
-                      </Text>
+                        <View style={styles.filterOptionContent}>
+                          <View style={styles.filterOptionLeft}>
+                            <HugeiconsIcon
+                              icon={
+                                order === "asc"
+                                  ? ArrowUp01Icon
+                                  : ArrowDown01Icon
+                              }
+                              size={18}
+                              color={themeColors.accent}
+                              strokeWidth={1.75}
+                            />
+                            <Text
+                              style={[
+                                styles.filterOptionText,
+                                { color: themeColors.text, fontSize: 12 },
+                              ]}
+                            >
+                              {order === "asc" ? "Low to High" : "High to Low"}
+                            </Text>
+                          </View>
+                        </View>
+                      </Pressable>
                     </View>
-                    <View
-                      style={[
-                        styles.countBadge,
-                        { backgroundColor: themeColors.border },
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.countText,
-                          { color: themeColors.textSecondary },
-                        ]}
-                      >
-                        {getPriorityCount(priority)}
-                      </Text>
-                    </View>
-                  </View>
-                </Pressable>
-              )
+                  ))}
+                </View>
+              </View>
             )}
+
+            {/* Time Filter Section */}
+            <View style={styles.filterSection}>
+              <Text style={[styles.sectionTitle, { color: themeColors.text }]}>
+                Time Filter
+              </Text>
+              <View style={styles.filterRow}>
+                {(["all", "daily", "weekly", "monthly"] as TimeFilter[]).map(
+                  (filter) => (
+                    <View key={filter} style={styles.filterOptionWrapper}>
+                      <Pressable
+                        style={[
+                          styles.filterOption,
+                          {
+                            backgroundColor:
+                              timeFilter === filter
+                                ? isDark
+                                  ? "#1f2937"
+                                  : "#f3f4f6"
+                                : "transparent",
+                            borderColor:
+                              timeFilter === filter
+                                ? themeColors.warning
+                                : themeColors.border,
+                          },
+                        ]}
+                        onPress={() => setTimeFilter(filter)}
+                      >
+                        <View style={styles.filterOptionContent}>
+                          <View style={styles.filterOptionLeft}>
+                            {filter !== "all" && (
+                              <HugeiconsIcon
+                                icon={Calendar02Icon}
+                                size={18}
+                                color={themeColors.warning}
+                                strokeWidth={1.75}
+                              />
+                            )}
+                            <Text
+                              style={[
+                                styles.filterOptionText,
+                                { color: themeColors.text, fontSize: 12 },
+                              ]}
+                            >
+                              {timeLabels[filter]}
+                            </Text>
+                          </View>
+                          <View
+                            style={[
+                              styles.countBadge,
+                              { backgroundColor: themeColors.border },
+                            ]}
+                          >
+                            <Text
+                              style={[
+                                styles.countText,
+                                { color: themeColors.textSecondary },
+                              ]}
+                            >
+                              {getTimeFilterCount(filter)}
+                            </Text>
+                          </View>
+                        </View>
+                      </Pressable>
+                    </View>
+                  )
+                )}
+              </View>
+            </View>
           </ScrollView>
 
           <Pressable
@@ -276,12 +477,24 @@ export default function CompletedScreen() {
             ]}
             onPress={() => setShowFilterModal(false)}
           >
-            <Text style={styles.closeButtonText}>Done</Text>
+            <Text style={styles.closeButtonText}>Apply Filters</Text>
           </Pressable>
         </Pressable>
       </Pressable>
     </Modal>
   );
+
+  const getActiveFiltersText = () => {
+    const filters = [];
+    if (selectedPriority !== "all")
+      filters.push(`${selectedPriority} priority`);
+    if (timeFilter !== "all")
+      filters.push(timeLabels[timeFilter].toLowerCase());
+    if (sortOrder === "asc") filters.push("ascending");
+    else filters.push("descending");
+
+    return filters.length > 0 ? ` (${filters.join(", ")})` : "";
+  };
 
   return (
     <ThemedView
@@ -290,7 +503,7 @@ export default function CompletedScreen() {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerContent}>
-          <View>
+          <View style={styles.headerLeft}>
             <Text style={[styles.headerTitle, { color: themeColors.text }]}>
               Completed Tasks
             </Text>
@@ -301,38 +514,11 @@ export default function CompletedScreen() {
               ]}
             >
               {filteredTasks.length} of {completedTasks.length}{" "}
-              {selectedPriority !== "all" && `${selectedPriority} priority `}
               {filteredTasks.length === 1 ? "task" : "tasks"} shown
             </Text>
           </View>
 
           <View style={styles.headerActions}>
-            {/* Filter Button */}
-            <Pressable
-              onPress={() => setShowFilterModal(true)}
-              style={[
-                styles.filterButton,
-                {
-                  backgroundColor:
-                    selectedPriority !== "all"
-                      ? themeColors.primary
-                      : isDark
-                      ? "#374151"
-                      : "#e5e7eb",
-                },
-              ]}
-            >
-              <HugeiconsIcon
-                icon={FilterIcon}
-                size={16}
-                color={
-                  selectedPriority !== "all"
-                    ? "#ffffff"
-                    : themeColors.textSecondary
-                }
-              />
-            </Pressable>
-
             {/* Clear All Button */}
             {completedTasks.length > 0 && (
               <Pressable
@@ -343,9 +529,75 @@ export default function CompletedScreen() {
                 ]}
               >
                 <HugeiconsIcon icon={Delete02Icon} size={16} color="#ef4444" />
+                <Text style={[styles.clearButtonText, { color: "#ef4444" }]}>
+                  Clear All
+                </Text>
               </Pressable>
             )}
           </View>
+        </View>
+
+        {/* Filter Controls */}
+        <View style={styles.filterControls}>
+          <Pressable
+            onPress={() => setShowFilterModal(true)}
+            style={[
+              styles.filterControlButton,
+              {
+                backgroundColor:
+                  selectedPriority !== "all" ||
+                  timeFilter !== "all" ||
+                  sortOrder !== "desc"
+                    ? themeColors.primary
+                    : isDark
+                    ? "#374151"
+                    : "#e5e7eb",
+              },
+            ]}
+          >
+            <HugeiconsIcon
+              icon={FilterIcon}
+              size={18}
+              color={
+                selectedPriority !== "all" ||
+                timeFilter !== "all" ||
+                sortOrder !== "desc"
+                  ? "#ffffff"
+                  : themeColors.textSecondary
+              }
+            />
+            <Text
+              style={[
+                styles.filterControlText,
+                {
+                  color:
+                    selectedPriority !== "all" ||
+                    timeFilter !== "all" ||
+                    sortOrder !== "desc"
+                      ? "#ffffff"
+                      : themeColors.textSecondary,
+                },
+              ]}
+            >
+              Filters & Sort
+            </Text>
+          </Pressable>
+
+          {/* Active Filters Display */}
+          {(selectedPriority !== "all" ||
+            timeFilter !== "all" ||
+            sortOrder !== "desc") && (
+            <View style={styles.activeFiltersContainer}>
+              <Text
+                style={[
+                  styles.activeFiltersText,
+                  { color: themeColors.textSecondary },
+                ]}
+              >
+                {getActiveFiltersText().replace(/[()]/g, "")}
+              </Text>
+            </View>
+          )}
         </View>
       </View>
 
@@ -385,6 +637,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    marginBottom: 16,
+  },
+  headerLeft: {
+    flex: 1,
   },
   headerTitle: {
     fontSize: 28,
@@ -400,12 +656,31 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 8,
   },
-  filterButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    justifyContent: "center",
+  filterControls: {
+    flexDirection: "row",
     alignItems: "center",
+    gap: 12,
+  },
+  filterControlButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 12,
+    gap: 8,
+  },
+  filterControlText: {
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  activeFiltersContainer: {
+    flex: 1,
+    paddingLeft: 8,
+  },
+  activeFiltersText: {
+    fontSize: 13,
+    fontWeight: "500",
+    fontStyle: "italic",
   },
   listContainer: {
     paddingHorizontal: 20,
@@ -502,6 +777,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 20,
     elevation: 10,
+    maxHeight: "85%",
   },
   modalHeader: {
     marginBottom: 20,
@@ -516,29 +792,46 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   filterOptions: {
-    maxHeight: 300,
     marginBottom: 20,
+  },
+  filterSection: {
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 14,
+    fontWeight: "700",
+    marginBottom: 12,
+  },
+  filterRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  filterOptionWrapper: {
+    width: "48%",
   },
   filterOption: {
     borderRadius: 12,
     borderWidth: 2,
-    marginBottom: 8,
     overflow: "hidden",
+    flex: 1,
   },
   filterOptionContent: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 16,
+    padding: 12,
   },
   filterOptionLeft: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
+    gap: 8,
+    flex: 1,
   },
   filterOptionText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "600",
+    flexShrink: 1,
   },
   countBadge: {
     paddingHorizontal: 8,

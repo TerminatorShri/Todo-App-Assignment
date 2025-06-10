@@ -28,6 +28,34 @@ const initialState: TasksState = {
       priority: "low",
       isCompleted: true,
     },
+    {
+      id: "9",
+      desc: "Read a book",
+      date: "2025-06-11",
+      priority: "low",
+      isCompleted: true,
+    },
+    {
+      id: "4",
+      desc: "Read a book",
+      date: "2025-07-11",
+      priority: "medium",
+      isCompleted: true,
+    },
+    {
+      id: "5",
+      desc: "Read a book",
+      date: "2025-06-12",
+      priority: "low",
+      isCompleted: true,
+    },
+    {
+      id: "6",
+      desc: "Read a book",
+      date: "2025-06-25",
+      priority: "high",
+      isCompleted: true,
+    },
   ],
 };
 
