@@ -8,7 +8,7 @@ let dbInstance: ReturnType<typeof drizzle> | null = null;
 
 export function getDatabaseInstance() {
   if (!dbInstance) {
-    const expo = openDatabaseSync("todo.db");
+    const expo = openDatabaseSync("todo.db", { useNewConnection: true });
     dbInstance = drizzle(expo);
   }
   return dbInstance;
@@ -30,7 +30,7 @@ export async function initializeDatabase() {
       console.log("Tasks table does not exist, creating it...");
 
       // Create the tasks table matching your exact schema
-      db.run(sql`
+      await db.run(sql`
         CREATE TABLE tasks (
           id TEXT PRIMARY KEY,
           description TEXT NOT NULL,

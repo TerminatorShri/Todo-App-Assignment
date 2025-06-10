@@ -1,5 +1,5 @@
 import { store } from "@/constants/Store";
-import { addTask } from "@/contexts/taskSlice";
+import { addTask, clearTasks } from "@/contexts/taskSlice";
 import { loadTasksFromDb } from "@/db/handleTasks";
 import { checkDatabaseHealth, initializeDatabase } from "@/db/initDb";
 import { useColorScheme } from "@/hooks/useColorScheme";
@@ -126,6 +126,7 @@ function AppContent() {
 
         // Add tasks to Redux store only if component is still mounted
         if (isMounted) {
+          dispatch(clearTasks()); // Clear existing tasks in store
           tasks.forEach((task) => {
             const tempTask: Task = {
               id: task.id,

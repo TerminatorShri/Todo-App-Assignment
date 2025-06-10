@@ -1,5 +1,6 @@
 import { ThemedView } from "@/components/ThemedView";
 import { markAsCompleted, removeTask } from "@/contexts/taskSlice";
+import { deleteTaskFromDb, markTaskAsCompletedInDb } from "@/db/handleTasks";
 import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
 import { cancelNotification } from "@/services/notificationService";
 import { Task } from "@/types/types";
@@ -19,6 +20,7 @@ import { useFonts } from "expo-font";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
+  Alert,
   FlatList,
   Modal,
   Pressable,
@@ -152,24 +154,39 @@ export default function PendingScreen() {
     }).length;
   };
 
-  const onDeleteTask = (taskId: string, notificationId: string) => {
-    dispatch(removeTask(taskId));
-    cancelNotification(notificationId);
-    ToastAndroid.showWithGravity(
-      "Task deleted successfully",
-      ToastAndroid.SHORT,
-      ToastAndroid.BOTTOM
-    );
+  const onDeleteTask = async (taskId: string, notificationId: string) => {
+    try {
+      await deleteTaskFromDb(taskId);
+      dispatch(removeTask(taskId));
+      cancelNotification(notificationId);
+      ToastAndroid.showWithGravity(
+        "Task marked as completed",
+        ToastAndroid.SHORT,
+        ToastAndroid.BOTTOM
+      );
+    } catch (error) {
+      console.log("Failed to delete task:", error);
+      Alert.alert("Error", "Failed to delete task, Please try again later.");
+    }
   };
 
-  const onCompleteTask = (taskId: string, notificationId: string) => {
-    dispatch(markAsCompleted(taskId));
-    cancelNotification(notificationId);
-    ToastAndroid.showWithGravity(
-      "Task marked as completed",
-      ToastAndroid.SHORT,
-      ToastAndroid.BOTTOM
-    );
+  const onCompleteTask = async (taskId: string, notificationId: string) => {
+    try {
+      await markTaskAsCompletedInDb(taskId);
+      dispatch(markAsCompleted(taskId));
+      cancelNotification(notificationId);
+      ToastAndroid.showWithGravity(
+        "Task marked as completed",
+        ToastAndroid.SHORT,
+        ToastAndroid.BOTTOM
+      );
+    } catch (error) {
+      console.error("Failed to mark task as completed:", error);
+      Alert.alert(
+        "Error",
+        "Failed to mark task as completed. Please try again later."
+      );
+    }
   };
 
   const onUpdateTask = (task: Task) => {
@@ -543,9 +560,7 @@ export default function PendingScreen() {
   };
 
   useEffect(() => {
-    setPendingTasks(
-      allTasks.filter((task) => !task.isCompleted)
-    );
+    setPendingTasks(allTasks.filter((task) => !task.isCompleted));
   }, [allTasks, selectedPriority, timeFilter, sortOrder, isDark]);
 
   return (

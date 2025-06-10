@@ -93,10 +93,12 @@ export async function markTaskAsCompletedInDb(taskId: string) {
   try {
     const db = getDatabaseInstance();
 
-    await db
-      .update(tasks)
-      .set({ isCompleted: true })
-      .where(eq(tasks.id, taskId));
+    await db.$client.withTransactionAsync(async () => {
+      await db
+        .update(tasks)
+        .set({ isCompleted: true })
+        .where(eq(tasks.id, taskId));
+    });
 
     console.log("Task marked as completed:", taskId);
   } catch (error) {
