@@ -11,19 +11,26 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
+import * as Notifications from "expo-notifications";
 import { Stack, usePathname, useRouter } from "expo-router";
+import React, { useEffect } from "react";
 import { Pressable, StatusBar, StyleSheet, Text, View } from "react-native";
 import { Provider } from "react-redux";
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const router = useRouter();
-  const [loaded] = useFonts({
-    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
-  });
   const pathname = usePathname();
-
-  if (!loaded) return null;
 
   const colors = {
     // Active tab colors
@@ -44,6 +51,17 @@ export default function RootLayout() {
   };
 
   const isDark = colorScheme === "dark";
+
+  useEffect(() => {
+    const getPermissions = async () => {
+      const { status } = await Notifications.requestPermissionsAsync();
+      if (status !== "granted") {
+        alert("Please enable notifications to receive reminders.");
+      }
+    };
+
+    getPermissions();
+  }, []);
 
   return (
     <Provider store={store}>

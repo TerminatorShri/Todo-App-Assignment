@@ -17,7 +17,7 @@ const Layout = () => {
         options={{
           title: "New Task",
           presentation: "formSheet",
-          sheetAllowedDetents: height > 700 ? [0.6] : "fitToContents",
+          sheetAllowedDetents: height > 700 ? [0.65] : "fitToContents",
           sheetGrabberVisible: true,
           sheetCornerRadius: 10,
           headerShown: true,
@@ -29,7 +29,7 @@ const Layout = () => {
         options={{
           title: "Task Details",
           presentation: "formSheet",
-          sheetAllowedDetents: height > 700 ? [0.6] : "fitToContents",
+          sheetAllowedDetents: height > 700 ? [0.65] : "fitToContents",
           sheetGrabberVisible: true,
           sheetCornerRadius: 10,
           headerShown: true,

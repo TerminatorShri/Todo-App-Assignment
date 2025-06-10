@@ -1,12 +1,14 @@
 import { addTask, updateTask } from "@/contexts/taskSlice";
 import { useAppDispatch } from "@/hooks/useStore";
+import { scheduleNotification } from "@/services/notificationService";
 import { Task } from "@/types/types";
 import {
   ArrowUp02Icon,
   Calendar03Icon,
   Flag02Icon,
   NoteEditIcon,
-  Tick04Icon,
+  Notification02Icon,
+  Tick01Icon,
   TimeQuarter02Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react-native";
@@ -42,10 +44,13 @@ const TaskForm = ({ initialTask, onTaskSave, mode = "add" }: TaskFormProps) => {
   );
   const [showDateTimePicker, setShowDateTimePicker] = useState(false);
   const [showPriorityModal, setShowPriorityModal] = useState(false);
+  const [showNotificationModal, setShowNotificationModal] = useState(false);
   const [selectedDateTime, setSelectedDateTime] = useState(
     initialTask?.date ? new Date(initialTask.date) : new Date()
   );
   const [pickerMode, setPickerMode] = useState<"date" | "time">("date");
+  const [selectedNotificationTime, setSelectedNotificationTime] =
+    useState<number>(initialTask?.notificationMinutesBefore || 15);
 
   const priorityColors = {
     low: isDark ? "#10b981" : "#059669",
@@ -58,6 +63,16 @@ const TaskForm = ({ initialTask, onTaskSave, mode = "add" }: TaskFormProps) => {
     medium: "Medium",
     high: "High",
   };
+
+  const notificationOptions = [
+    { value: 0, label: "At time" },
+    { value: 15, label: "15 minutes before" },
+    { value: 30, label: "30 minutes before" },
+    { value: 45, label: "45 minutes before" },
+    { value: 60, label: "1 hour before" },
+    { value: 120, label: "2 hours before" },
+    { value: 1440, label: "1 day before" },
+  ];
 
   const themeColors = {
     background: isDark ? "#0f0f0f" : "#ffffff",
@@ -91,9 +106,18 @@ const TaskForm = ({ initialTask, onTaskSave, mode = "add" }: TaskFormProps) => {
       onTaskSave();
     } else {
       console.log("Adding new task:", task);
-      dispatch(addTask(task));
-      onTaskSave();
+      scheduleNotification(task).then((notificationId) => {
+        if (notificationId) {
+          dispatch(addTask({ ...task, notificationId }));
+        }
+        onTaskSave();
+      });
     }
+  };
+
+  const getNotificationLabel = (minutes: number) => {
+    const option = notificationOptions.find((opt) => opt.value === minutes);
+    return option ? option.label : "Custom";
   };
 
   const DateTimePickerModal = () => (
@@ -181,7 +205,7 @@ const TaskForm = ({ initialTask, onTaskSave, mode = "add" }: TaskFormProps) => {
               </Text>
               {selectedPriority === level && (
                 <HugeiconsIcon
-                  icon={Tick04Icon}
+                  icon={Tick01Icon}
                   size={20}
                   color={themeColors.primary}
                 />
@@ -206,11 +230,75 @@ const TaskForm = ({ initialTask, onTaskSave, mode = "add" }: TaskFormProps) => {
     </Modal>
   );
 
+  const NotificationModal = () => (
+    <Modal visible={showNotificationModal} transparent animationType="fade">
+      <View style={styles.priorityModalOverlay}>
+        <View
+          style={[
+            styles.priorityModal,
+            { backgroundColor: themeColors.background },
+          ]}
+        >
+          <Text
+            style={[styles.priorityModalTitle, { color: themeColors.text }]}
+          >
+            Notification Timing
+          </Text>
+          {notificationOptions.map((option) => (
+            <TouchableOpacity
+              key={option.value}
+              style={[
+                styles.priorityModalItem,
+                { borderBottomColor: themeColors.border },
+              ]}
+              onPress={() => {
+                setSelectedNotificationTime(option.value);
+                setShowNotificationModal(false);
+              }}
+            >
+              <HugeiconsIcon
+                icon={Notification02Icon}
+                size={20}
+                color={themeColors.primary}
+              />
+              <Text
+                style={[styles.priorityModalText, { color: themeColors.text }]}
+              >
+                {option.label}
+              </Text>
+              {selectedNotificationTime === option.value && (
+                <HugeiconsIcon
+                  icon={Tick01Icon}
+                  size={20}
+                  color={themeColors.primary}
+                />
+              )}
+            </TouchableOpacity>
+          ))}
+          <TouchableOpacity
+            style={styles.priorityModalCancel}
+            onPress={() => setShowNotificationModal(false)}
+          >
+            <Text
+              style={[
+                styles.priorityModalCancelText,
+                { color: themeColors.textSecondary },
+              ]}
+            >
+              Cancel
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  );
+
   useEffect(() => {
     console.log("Initial task:", initialTask);
     if (initialTask) {
       setSelectedDateTime(new Date(initialTask.date));
       setSelectedPriority(initialTask.priority);
+      setSelectedNotificationTime(initialTask.notificationMinutesBefore || 15);
     }
   }, [initialTask]);
 
@@ -232,6 +320,7 @@ const TaskForm = ({ initialTask, onTaskSave, mode = "add" }: TaskFormProps) => {
             date: selectedDateTime.toISOString(),
             priority: selectedPriority,
             isCompleted: false,
+            notificationMinutesBefore: selectedNotificationTime,
           };
           console.log("Submitting task:", task);
           handleSubmit(task);
@@ -288,7 +377,7 @@ const TaskForm = ({ initialTask, onTaskSave, mode = "add" }: TaskFormProps) => {
               )}
             </View>
 
-            {/* Action Buttons */}
+            {/* First Action Row - Date, Time, Priority */}
             <View style={styles.actionRow}>
               {/* Date Button */}
               <TouchableOpacity
@@ -399,6 +488,56 @@ const TaskForm = ({ initialTask, onTaskSave, mode = "add" }: TaskFormProps) => {
               </TouchableOpacity>
             </View>
 
+            {/* Notification Section */}
+            <View style={styles.notificationSection}>
+              <View
+                style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
+              >
+                <HugeiconsIcon
+                  icon={Notification02Icon}
+                  size={24}
+                  color={themeColors.primary}
+                />
+                <Text style={[styles.label, { color: themeColors.text }]}>
+                  Notification
+                </Text>
+              </View>
+              <TouchableOpacity
+                style={[
+                  styles.notificationButton,
+                  {
+                    backgroundColor: themeColors.surface,
+                    borderColor: themeColors.border,
+                  },
+                ]}
+                onPress={() => setShowNotificationModal(true)}
+              >
+                <HugeiconsIcon
+                  icon={Notification02Icon}
+                  size={20}
+                  color={themeColors.primary}
+                />
+                <View style={styles.actionButtonContent}>
+                  <Text
+                    style={[
+                      styles.actionButtonLabel,
+                      { color: themeColors.textSecondary },
+                    ]}
+                  >
+                    Remind me
+                  </Text>
+                  <Text
+                    style={[
+                      styles.actionButtonValue,
+                      { color: themeColors.text },
+                    ]}
+                  >
+                    {getNotificationLabel(selectedNotificationTime)}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+
             {/* Save Button */}
             <TouchableOpacity
               style={[
@@ -423,6 +562,7 @@ const TaskForm = ({ initialTask, onTaskSave, mode = "add" }: TaskFormProps) => {
 
       <DateTimePickerModal />
       <PriorityModal />
+      <NotificationModal />
     </>
   );
 };
@@ -482,6 +622,17 @@ const styles = StyleSheet.create({
   actionButtonValue: {
     fontSize: 12,
     fontWeight: "600",
+  },
+  notificationSection: {
+    gap: 8,
+  },
+  notificationButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 14,
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 12,
   },
   saveButton: {
     flexDirection: "row",
