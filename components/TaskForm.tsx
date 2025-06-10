@@ -1,5 +1,5 @@
 import { addTask, updateTask } from "@/contexts/taskSlice";
-import { saveTaskToDb, updateTaskInDb } from "@/db/handleTasks";
+// import { saveTaskToDb, updateTaskInDb } from "@/db/handleTasks";
 import { useAppDispatch } from "@/hooks/useStore";
 import {
   cancelNotification,
@@ -155,11 +155,11 @@ const TaskForm = ({ initialTask, onTaskSave, mode = "add" }: TaskFormProps) => {
           console.log("🚀 ~ handleSubmit ~ updatedTask:", updatedTask);
           dispatch(updateTask(updatedTask));
 
-          try {
-            await updateTaskInDb(updatedTask);
-          } catch (error) {
-            console.error("Failed to update task in DB:", error);
-          }
+          // try {
+          //   await updateTaskInDb(updatedTask);
+          // } catch (error) {
+          //   console.error("Failed to update task in DB:", error);
+          // }
 
           toastTiming(
             task.date,
@@ -180,11 +180,11 @@ const TaskForm = ({ initialTask, onTaskSave, mode = "add" }: TaskFormProps) => {
         if (notificationId) {
           console.log("Notification scheduled with ID:", notificationId);
 
-            try {
-              await saveTaskToDb(newTask);
-            } catch (error) {
-              console.error("Failed to save task to DB:", error);
-            }
+          // try {
+          //   await saveTaskToDb(newTask);
+          // } catch (error) {
+          //   console.error("Failed to save task to DB:", error);
+          // }
 
           toastTiming(
             task.date,

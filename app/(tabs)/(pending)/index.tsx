@@ -1,6 +1,6 @@
 import { ThemedView } from "@/components/ThemedView";
 import { markAsCompleted, removeTask } from "@/contexts/taskSlice";
-import { deleteTaskFromDb, markTaskAsCompletedInDb } from "@/db/handleTasks";
+// import { deleteTaskFromDb, markTaskAsCompletedInDb } from "@/db/handleTasks";
 import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
 import { cancelNotification } from "@/services/notificationService";
 import { Task } from "@/types/types";
@@ -156,11 +156,11 @@ export default function PendingScreen() {
 
   const onDeleteTask = async (taskId: string, notificationId: string) => {
     try {
-      await deleteTaskFromDb(taskId);
+      // await deleteTaskFromDb(taskId);
       dispatch(removeTask(taskId));
       cancelNotification(notificationId);
       ToastAndroid.showWithGravity(
-        "Task marked as completed",
+        "Task deleted successfully",
         ToastAndroid.SHORT,
         ToastAndroid.BOTTOM
       );
@@ -172,7 +172,7 @@ export default function PendingScreen() {
 
   const onCompleteTask = async (taskId: string, notificationId: string) => {
     try {
-      await markTaskAsCompletedInDb(taskId);
+      // await markTaskAsCompletedInDb(taskId);
       dispatch(markAsCompleted(taskId));
       cancelNotification(notificationId);
       ToastAndroid.showWithGravity(
