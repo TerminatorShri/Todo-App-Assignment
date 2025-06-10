@@ -19,10 +19,9 @@ import { Provider } from "react-redux";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    shouldShowAlert: true,
+    shouldShowBanner: true,
     shouldPlaySound: true,
     shouldSetBadge: true,
-    shouldShowBanner: true,
     shouldShowList: true,
   }),
 });

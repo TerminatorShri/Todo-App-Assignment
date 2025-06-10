@@ -1,6 +1,7 @@
 import { ThemedView } from "@/components/ThemedView";
-import { removeTask } from "@/contexts/taskSlice";
+import { markAsCompleted, removeTask } from "@/contexts/taskSlice";
 import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
+import { cancelNotification } from "@/services/notificationService";
 import { Task } from "@/types/types";
 import {
   Add01Icon,
@@ -152,10 +153,21 @@ export default function PendingScreen() {
     }).length;
   };
 
-  const onDeleteTask = (taskId: string) => {
+  const onDeleteTask = (taskId: string, notificationId: string) => {
     dispatch(removeTask(taskId));
+    cancelNotification(notificationId);
     ToastAndroid.showWithGravity(
       "Task deleted successfully",
+      ToastAndroid.SHORT,
+      ToastAndroid.BOTTOM
+    );
+  };
+
+  const onCompleteTask = (taskId: string, notificationId: string) => {
+    dispatch(markAsCompleted(taskId));
+    cancelNotification(notificationId);
+    ToastAndroid.showWithGravity(
+      "Task marked as completed",
       ToastAndroid.SHORT,
       ToastAndroid.BOTTOM
     );
@@ -200,7 +212,7 @@ export default function PendingScreen() {
           >
             <Checkbox
               value={item.isCompleted}
-              onValueChange={() => onDeleteTask(item.id)}
+              onValueChange={() => onCompleteTask(item.id, item.notificationId)}
               color={themeColors.primary}
               style={styles.checkbox}
             />
@@ -212,7 +224,7 @@ export default function PendingScreen() {
 
             <View style={styles.actionButtons}>
               <Pressable
-                onPress={() => dispatch(removeTask(item.id))}
+                onPress={() => onDeleteTask(item.id, item.notificationId)}
                 style={[
                   styles.actionButton,
                   { backgroundColor: isDark ? "#2d1b1b" : "#fee2e2" },

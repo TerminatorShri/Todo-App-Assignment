@@ -1,6 +1,9 @@
 import { addTask, updateTask } from "@/contexts/taskSlice";
 import { useAppDispatch } from "@/hooks/useStore";
-import { scheduleNotification } from "@/services/notificationService";
+import {
+  cancelNotification,
+  scheduleNotification,
+} from "@/services/notificationService";
 import { Task } from "@/types/types";
 import {
   ArrowUp02Icon,
@@ -110,16 +113,52 @@ const TaskForm = ({ initialTask, onTaskSave, mode = "add" }: TaskFormProps) => {
 
   const dispatch = useAppDispatch();
 
+  const toastTiming = (date: string, notificationMinutesBefore: string) => {
+    const taskDate = new Date(date);
+    const notificationTime = new Date(
+      taskDate.getTime() - (parseInt(notificationMinutesBefore) || 0) * 60000
+    );
+
+    if (notificationTime <= new Date()) {
+      console.warn("Notification time is in the past.");
+      return null;
+    }
+
+    ToastAndroid.show(
+      `Notification scheduled for ${format(notificationTime, "MMM d, h:mm a")}`,
+      ToastAndroid.SHORT
+    );
+  };
+
   const handleSubmit = (task: Task) => {
     if (mode === "edit" && initialTask) {
       console.log("Editing task:", { ...initialTask, ...task });
-      dispatch(updateTask({ ...initialTask, ...task }));
+      if (initialTask.notificationId) {
+        cancelNotification(initialTask.notificationId);
+      }
+      scheduleNotification({ ...initialTask, ...task }).then(
+        (notificationId) => {
+          if (notificationId) {
+            console.log("Notification updated with ID:", notificationId);
+            dispatch(updateTask({ ...task, notificationId }));
+            toastTiming(
+              task.date,
+              task.notificationMinutesBefore?.toString() || "0"
+            );
+          }
+        }
+      );
       onTaskSave();
     } else {
       console.log("Adding new task:", task);
       scheduleNotification(task).then((notificationId) => {
         if (notificationId) {
+          console.log("Notification scheduled with ID:", notificationId);
           dispatch(addTask({ ...task, notificationId }));
+          toastTiming(
+            task.date,
+            task.notificationMinutesBefore?.toString() || "0"
+          );
         }
         onTaskSave();
       });
@@ -331,6 +370,7 @@ const TaskForm = ({ initialTask, onTaskSave, mode = "add" }: TaskFormProps) => {
             priority: selectedPriority,
             isCompleted: false,
             notificationMinutesBefore: selectedNotificationTime,
+            notificationId: initialTask?.notificationId || "",
           };
           console.log("Submitting task:", task);
           handleSubmit(task);

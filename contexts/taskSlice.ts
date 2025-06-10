@@ -13,6 +13,7 @@ const initialState: TasksState = {
       date: "2025-06-10",
       priority: "medium",
       isCompleted: false,
+      notificationId: "",
     },
     {
       id: "2",
@@ -20,6 +21,7 @@ const initialState: TasksState = {
       date: "2025-06-12",
       priority: "high",
       isCompleted: false,
+      notificationId: "",
     },
     {
       id: "3",
@@ -27,34 +29,7 @@ const initialState: TasksState = {
       date: "2025-06-11",
       priority: "low",
       isCompleted: true,
-    },
-    {
-      id: "9",
-      desc: "Read a book",
-      date: "2025-06-11",
-      priority: "low",
-      isCompleted: true,
-    },
-    {
-      id: "4",
-      desc: "Read a book",
-      date: "2025-07-11",
-      priority: "medium",
-      isCompleted: true,
-    },
-    {
-      id: "5",
-      desc: "Read a book",
-      date: "2025-06-12",
-      priority: "low",
-      isCompleted: true,
-    },
-    {
-      id: "6",
-      desc: "Read a book",
-      date: "2025-06-25",
-      priority: "high",
-      isCompleted: true,
+      notificationId: "",
     },
   ],
 };

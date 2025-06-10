@@ -22,49 +22,55 @@ export const scheduleNotification = async (
 
     // Create priority-based urgency
     const priorityConfig = {
-      high: { urgency: "high" as const },
-      medium: { urgency: "normal" as const },
-      low: { urgency: "low" as const },
+      high: { urgency: "high" as const, emoji: "🔥" },
+      medium: { urgency: "normal" as const, emoji: "⚡" },
+      low: { urgency: "low" as const, emoji: "💡" },
     };
 
     const config = priorityConfig[task.priority];
 
-    // Create time-based notification body
-    const getNotificationBody = () => {
+    // Create time-based notification body with task description included
+    const getNotificationContent = () => {
       const minutesBefore = task.notificationMinutesBefore || 0;
+      const priorityText = ` ${task.priority.toUpperCase()} PRIORITY`;
 
+      let timeText = "";
       if (minutesBefore === 0) {
-        return `Your task is due now!\n${taskDateFormatted} at ${taskTimeFormatted}`;
+        timeText = "Due now!";
       } else if (minutesBefore < 60) {
-        return `Your task is due in ${minutesBefore} minutes\n${taskDateFormatted} at ${taskTimeFormatted}`;
+        timeText = `Due in ${minutesBefore} minutes`;
       } else if (minutesBefore < 1440) {
         const hours = Math.floor(minutesBefore / 60);
-        return `Your task is due in ${hours} hour${
-          hours > 1 ? "s" : ""
-        }\n${taskDateFormatted} at ${taskTimeFormatted}`;
+        timeText = `Due in ${hours} hour${hours > 1 ? "s" : ""}`;
       } else {
         const days = Math.floor(minutesBefore / 1440);
-        return `Your task is due in ${days} day${
-          days > 1 ? "s" : ""
-        }\n${taskDateFormatted} at ${taskTimeFormatted}`;
+        timeText = `Due in ${days} day${days > 1 ? "s" : ""}`;
       }
+
+      return {
+        title: `TASK REMINDER - ${priorityText}`,
+        body: `${task.desc}\n ${timeText}\n ${taskDateFormatted} at ${taskTimeFormatted}`,
+      };
     };
+
+    const content = getNotificationContent();
 
     const notificationId = await Notification.scheduleNotificationAsync({
       content: {
-        title: "Task Reminder",
-        body: getNotificationBody(),
-        subtitle: task.desc,
+        title: content.title,
+        body: content.body,
         data: {
           taskId: task.id,
+          taskDescription: task.desc, // Include task description in data
           priority: task.priority,
           taskDate: task.date,
+          minutesBefore: task.notificationMinutesBefore,
         },
         sound: true,
         badge: 1,
-        // iOS specific styling
-        categoryIdentifier: "task-reminder",
-        // Android specific styling
+        // iOS specific
+        categoryIdentifier: "TASK_REMINDER",
+        // Android specific
         color:
           config.urgency === "high"
             ? "#ef4444"
@@ -80,14 +86,15 @@ export const scheduleNotification = async (
     });
 
     console.log(
-      `Notification scheduled for task: ${task.desc} at ${format(
+      `✅ Notification scheduled for task: "${task.desc}" at ${format(
         notificationTime,
         "MMM d, h:mm a"
       )}`
     );
+
     return notificationId;
   } catch (error) {
-    console.error("Failed to schedule notification:", error);
+    console.error("❌ Failed to schedule notification:", error);
     return null;
   }
 };
@@ -96,10 +103,58 @@ export const cancelNotification = async (
   notificationId: string
 ): Promise<void> => {
   try {
+    // Add validation
+    if (!notificationId) {
+      console.warn(
+        "Cannot cancel notification: notificationId is empty or undefined"
+      );
+      return;
+    }
+
+    console.log(`Attempting to cancel notification: ${notificationId}`);
+
+    // Check if notification exists before canceling
+    const scheduledNotifications =
+      await Notification.getAllScheduledNotificationsAsync();
+    const notificationExists = scheduledNotifications.some(
+      (notification) => notification.identifier === notificationId
+    );
+
+    if (!notificationExists) {
+      console.warn(
+        `Notification with ID ${notificationId} not found in scheduled notifications`
+      );
+      return;
+    }
+
+    // Cancel the notification
     await Notification.cancelScheduledNotificationAsync(notificationId);
-    console.log(`Notification cancelled: ${notificationId}`);
+    console.log(`✅ Notification cancelled successfully: ${notificationId}`);
+
+    // Verify cancellation
+    const updatedNotifications =
+      await Notification.getAllScheduledNotificationsAsync();
+    const stillExists = updatedNotifications.some(
+      (notification) => notification.identifier === notificationId
+    );
+
+    if (stillExists) {
+      console.error(
+        `❌ Notification still exists after cancellation: ${notificationId}`
+      );
+    } else {
+      console.log(
+        `✅ Verified: Notification ${notificationId} successfully removed`
+      );
+    }
   } catch (error) {
     console.error("Failed to cancel notification:", error);
+    console.error("Error details:", {
+      notificationId,
+      errorMessage: error instanceof Error ? error.message : "Unknown error",
+      errorStack: error instanceof Error ? error.stack : undefined,
+    });
+    throw error; // Re-throw to let caller handle if needed
   }
 };
 
