@@ -14,8 +14,22 @@ import { useFonts } from "expo-font";
 import * as Notifications from "expo-notifications";
 import { Stack, usePathname, useRouter } from "expo-router";
 import React, { useEffect } from "react";
-import { Pressable, StatusBar, StyleSheet, Text, View } from "react-native";
+import {
+  LogBox,
+  Pressable,
+  StatusBar,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { Provider } from "react-redux";
+
+// Suppress expo-notifications warnings for local notifications
+LogBox.ignoreLogs([
+  "expo-notifications: Android Push notifications",
+  "`expo-notifications` functionality is not fully supported in Expo Go",
+  "We recommend you instead use a development build",
+]);
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
