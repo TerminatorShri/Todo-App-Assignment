@@ -305,7 +305,6 @@ const TaskForm = ({ initialTask, onTaskSave, mode = "add" }: TaskFormProps) => {
   return (
     <>
       <Formik
-        enableReinitialize
         initialValues={{
           id: initialTask?.id || Date.now().toString(),
           desc: initialTask?.desc || "",
