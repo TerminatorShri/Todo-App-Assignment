@@ -5,11 +5,13 @@ import { Task } from "@/types/types";
 import {
   ArrowUp02Icon,
   Calendar03Icon,
+  DigitalClockIcon,
   Flag02Icon,
   NoteEditIcon,
   Notification02Icon,
   Tick01Icon,
   TimeQuarter02Icon,
+  Timer02Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -257,7 +259,7 @@ const TaskForm = ({ initialTask, onTaskSave, mode = "add" }: TaskFormProps) => {
               }}
             >
               <HugeiconsIcon
-                icon={Notification02Icon}
+                icon={Timer02Icon}
                 size={20}
                 color={themeColors.primary}
               />
@@ -512,7 +514,7 @@ const TaskForm = ({ initialTask, onTaskSave, mode = "add" }: TaskFormProps) => {
                 onPress={() => setShowNotificationModal(true)}
               >
                 <HugeiconsIcon
-                  icon={Notification02Icon}
+                  icon={DigitalClockIcon}
                   size={20}
                   color={themeColors.primary}
                 />
