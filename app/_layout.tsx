@@ -1,8 +1,10 @@
 import { store } from "@/constants/Store";
+import { addTask } from "@/contexts/taskSlice";
 import { loadTasksFromDb } from "@/db/handleTasks";
 import { checkDatabaseHealth, initializeDatabase } from "@/db/initDb";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { useAppDispatch } from "@/hooks/useStore";
+import { Task } from "@/types/types";
 import {
   InformationCircleIcon,
   StickyNote01Icon,
@@ -124,7 +126,19 @@ function AppContent() {
 
         // Add tasks to Redux store only if component is still mounted
         if (isMounted) {
-          console.log("Hello:", tasks);
+          tasks.forEach((task) => {
+            const tempTask: Task = {
+              id: task.id,
+              desc: task.description,
+              date: task.date,
+              priority: task.priority,
+              isCompleted: task.isCompleted,
+              notificationId: task.notificationId,
+              notificationMinutesBefore:
+                task.notificationMinutesBefore ?? undefined,
+            };
+            dispatch(addTask(tempTask));
+          });
 
           setIsDbReady(true);
           console.log("Database setup completed successfully");

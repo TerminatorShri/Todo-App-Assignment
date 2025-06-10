@@ -75,3 +75,32 @@ export async function deleteTaskFromDb(taskId: string) {
     throw error;
   }
 }
+
+export async function clearCompletedTasksFromDb() {
+  try {
+    const db = getDatabaseInstance();
+
+    await db.delete(tasks).where(eq(tasks.isCompleted, true));
+
+    console.log("Completed tasks cleared successfully");
+  } catch (error) {
+    console.error("Failed to clear completed tasks:", error);
+    throw error;
+  }
+}
+
+export async function markTaskAsCompletedInDb(taskId: string) {
+  try {
+    const db = getDatabaseInstance();
+
+    await db
+      .update(tasks)
+      .set({ isCompleted: true })
+      .where(eq(tasks.id, taskId));
+
+    console.log("Task marked as completed:", taskId);
+  } catch (error) {
+    console.error("Failed to mark task as completed:", error);
+    throw error;
+  }
+}

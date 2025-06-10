@@ -6,32 +6,7 @@ interface TasksState {
 }
 
 const initialState: TasksState = {
-  tasks: [
-    {
-      id: "1",
-      desc: "Buy groceries",
-      date: "2025-06-10",
-      priority: "medium",
-      isCompleted: false,
-      notificationId: "",
-    },
-    {
-      id: "2",
-      desc: "Finish React Native project as soon as possible",
-      date: "2025-06-12",
-      priority: "high",
-      isCompleted: false,
-      notificationId: "",
-    },
-    {
-      id: "3",
-      desc: "Read a book",
-      date: "2025-06-11",
-      priority: "low",
-      isCompleted: true,
-      notificationId: "",
-    },
-  ],
+  tasks: [],
 };
 
 const tasksSlice = createSlice({
